@@ -4,6 +4,10 @@ All notable changes to `@trebired/env` will be documented here.
 
 This project follows semantic versioning once published.
 
+## 0.1.2
+
+- Updated the logger-adapter dependency so env bootstrap initialization logs remain idempotent.
+
 ## 0.1.1
 
 - Added configured env ownership APIs: `bootstrapProcessEnv`, `readConfiguredEnvFile`, `readConfiguredEnvFileString`, `writeConfiguredEnvFileValue`, `writeConfiguredEnvFileObject`, and `resolveConfiguredEnvFilePath`.
