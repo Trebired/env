@@ -4,6 +4,12 @@ All notable changes to `@trebired/env` will be documented here.
 
 This project follows semantic versioning once published.
 
+## 0.1.1
+
+- Added configured env ownership APIs: `bootstrapProcessEnv`, `readConfiguredEnvFile`, `readConfiguredEnvFileString`, `writeConfiguredEnvFileValue`, `writeConfiguredEnvFileObject`, and `resolveConfiguredEnvFilePath`.
+- Extended `.trebired/env/config.ts` so apps can declare internal/external file resolution, fallback policy, process-env bootstrap behavior, and write sorting without app-specific package code.
+- Added logger-adapter initialization logging for env bootstrap.
+
 ## 0.1.0
 
 - Added `readEnvFile`, `readEnvFileText`, `writeEnvFileValue`, `writeEnvFileObject`: env-file reading and writing, moved from `@trebired/utils`.

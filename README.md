@@ -1,8 +1,8 @@
 # @trebired/env
 
-Env file and process-env helpers for Trebired apps and packages: read and write `.env`-style files, resolve process environment values, and configure app-defined env-file kinds through `.trebired/env/config.ts`.
+Env file and process-env helpers for Trebired apps and packages: read and write `.env`-style files, resolve configured internal/external env files, bootstrap `process.env`, and configure app-defined env policy through `.trebired/env/config.ts`.
 
-This package owns env-file parsing, formatting, and writing, and process-env read/write helpers. It does not own path resolution for *which* env file to read (internal vs. external, dev-data layout, legacy fallbacks) — the consuming app supplies the resolved path; it does not own secrets management, encryption, or remote config.
+This package owns env-file parsing, formatting, configured env-file resolution, env-file writes, and process-env read/write/bootstrap helpers. App-specific paths, fallback policy, allowed process overrides, and write ordering are supplied declaratively by `.trebired/env/config.ts`; the package code stays generic.
 
 ## Install
 
@@ -15,12 +15,18 @@ bun i @trebired/env
 ## Quick Start
 
 ```ts
-import { readEnvFile, writeEnvFileValue } from "@trebired/env";
+import {
+  bootstrapProcessEnv,
+  readConfiguredEnvFile,
+  writeConfiguredEnvFileValue,
+} from "@trebired/env";
 
-const env = readEnvFile({ path: ".env", kind: "external", required: false });
+await bootstrapProcessEnv();
+
+const env = readConfiguredEnvFile({ kind: "external", required: false });
 console.log(env.DATABASE_URL);
 
-writeEnvFileValue(".env", "PORT", 3100, { quote: false });
+writeConfiguredEnvFileValue("PORT", 3100);
 ```
 
 ## Concepts
@@ -37,23 +43,40 @@ writeEnvFileValue(".env", "PORT", 3100, { quote: false });
 
 ### `.trebired/env/config.ts`
 
-Optional. When present, `envFileKinds` restricts which `kind` values `assertValidEnvFileKind` accepts; without it, any string is accepted.
+Optional. When present, `envFileKinds` restricts which `kind` values `assertValidEnvFileKind` accepts; `files`, `process`, and `write` define configured env-file resolution, process injection, and write formatting.
 
 ```ts
 import { defineConfig } from "@trebired/env";
 
 export default defineConfig({
-  forVersion: "0.1.0",
+  forVersion: "0.1.1",
   envFileKinds: ["internal", "external"],
+  files: {
+    internal: { path: "{cwd}/.env" },
+    external: {
+      envKey: "ENV_FILE",
+      defaultPath: "/etc/{product.slug}/app/.env",
+      fallbackPaths: ["{requested}", "/data/{product.slug}/app/.env"],
+    },
+  },
+  process: {
+    internal: {
+      onlyMissing: true,
+      skipKeys: ["ENV_FILE"],
+      useEnvFileValue: true,
+    },
+  },
 });
 ```
 
-`resolveConfiguredEnvFileKinds()` and `assertValidEnvFileKind(kind, configuredKinds)` are exported separately from `readEnvFile`/`writeEnvFileValue`/`writeEnvFileObject` — those stay synchronous and never load config themselves. Call `resolveConfiguredEnvFileKinds()` once (it's async) and pass the result to `assertValidEnvFileKind` wherever validation matters.
+Call `await bootstrapProcessEnv()` once during startup to load config, resolve the configured env files, apply configured process-env injection, and cache config for synchronous configured reads/writes.
 
 ## Public API
 
 - `readEnvFile(input?)`, `readEnvFileText(envFile, required?)`: read and parse an env file at a resolved path.
 - `writeEnvFileValue(envFile, key, value, options?)`, `writeEnvFileObject(envFile, entries, options?)`: write one or many keys, `{ quote: false }` to skip JSON-quoting values, `{ sortKeys }` for a custom key order.
+- `bootstrapProcessEnv(options?)`: load `.trebired/env/config.ts`, resolve configured internal/external env files, apply configured process-env writes, and return the resolved env objects.
+- `readConfiguredEnvFile(input?)`, `readConfiguredEnvFileString(key, input?)`, `writeConfiguredEnvFileValue(key, value, options?)`, `writeConfiguredEnvFileObject(entries, options?)`, `resolveConfiguredEnvFilePath(input?)`: config-backed env-file helpers.
 - `parseEnvText`, `formatEnvAssignment`, `serializeEnvLines`, `updateEnvTextValue`, `sortEnvKeys`, `stripEnvQuotes`, `parseEnvAssignmentLine`: the line-level parsing/formatting primitives the file functions are built from.
 - `readProcessEnv`, `readProcessEnvValue`, `writeProcessEnvValue`, `deleteProcessEnvValues`, `normalizeProcessEnvObject`, `buildProcessEnvObject`, `writeProcessEnvObject`: `process.env` read/write helpers.
 - `readProcessEnvFlag`, `readProcessEnvNumber`, `readOptionalNonNegativeEnvNumber`: typed env-value parsing.
@@ -63,7 +86,6 @@ export default defineConfig({
 
 This package does not:
 
-- Resolve which env file to read for a given app (internal/external path resolution, dev-data layout, legacy fallbacks stay app-owned).
 - Encrypt, sign, or remotely fetch env values.
 - Watch env files for changes or hot-reload process env.
 - Validate env values against a schema.

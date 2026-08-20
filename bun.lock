@@ -5,6 +5,7 @@
     "": {
       "name": "@trebired/env",
       "dependencies": {
+        "@package/logger-adapter": "npm:@trebired/logger-adapter@^0.4.16",
         "@trebired/utils": "^0.8.0",
       },
       "devDependencies": {
