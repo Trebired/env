@@ -1,0 +1,72 @@
+{
+  "author": "Miroslav Machynka (Trebired)",
+  "config": {
+    "organization": {
+      "displayName": "Trebired",
+      "name": "trebired",
+      "website": "https://trebired.com"
+    }
+  },
+  "name": "@trebired/env",
+  "version": "0.1.0",
+  "description": "Env file reading and writing, process-env helpers, and configurable env-file kinds for Trebired apps and packages.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "packageManager": "bun@1.3.12",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    ".trebired/logger/config.ts",
+    "dist",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "bun run prepare:generated && rm -rf dist && tsc -p tsconfig.build.json && bun ./scripts/prepare-dist.mjs prepare-dist",
+    "postpack": "bun ./scripts/prepare-dist.mjs postpack",
+    "prepack": "bun run build && bun ./scripts/prepare-dist.mjs prepack",
+    "prepublishOnly": "bun run typecheck && bun run verify:pack",
+    "prepare:generated": "bun ./scripts/build/generated/tsconfig.mjs",
+    "typecheck": "bun run prepare:generated && tsc --noEmit",
+    "verify:pack": "bun ./scripts/verify-pack.mjs"
+  },
+  "dependencies": {
+    "@trebired/utils": "^0.8.0"
+  },
+  "devDependencies": {
+    "@trebired/code-discipline": "^7.0.0",
+    "@trebired/configs": "^0.2.0",
+    "@types/bun": "^1.3.14",
+    "@types/node": "^24.13.3",
+    "typescript": "^6.0.3"
+  },
+  "keywords": [
+    "env",
+    "dotenv",
+    "config",
+    "process-env",
+    "bun"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Trebired/env"
+  },
+  "homepage": "https://github.com/Trebired/env#readme",
+  "bugs": {
+    "url": "https://github.com/Trebired/env/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

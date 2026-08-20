@@ -1,0 +1,12 @@
+{
+  "#11n74g0387ae": "./src/config.ts",
+  "#5lg8g065ktkw": "./src/index.ts",
+  "#9e51i4xvsxzy": "./scripts/prepare-dist.mjs",
+  "#glsmg2ktsgcl": "./.trebired/logger/config.ts",
+  "#gxyj10bl88dt": "./scripts/verify-pack.mjs",
+  "#hphn2e2aq8j8": "./src/values.ts",
+  "#qsa1f0d6tlkq": "./scripts/build/generated/tsconfig.mjs",
+  "#sr2d14cg74bd": "./src/process.ts",
+  "#whj98feo4xxm": "./src/file.ts",
+  "#y0hso6xi7mbh": "./src/lines.ts"
+}
