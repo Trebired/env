@@ -4,6 +4,10 @@ All notable changes to `@trebired/env` will be documented here.
 
 This project follows semantic versioning once published.
 
+## 0.2.0
+
+- Updated the `@trebired/utils` dependency range to `^0.9.0`, keeping every `@trebired` package on one range so a project cannot resolve two copies.
+
 ## 0.1.2
 
 - Updated the logger-adapter dependency so env bootstrap initialization logs remain idempotent.
