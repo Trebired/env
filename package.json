@@ -8,7 +8,7 @@
     }
   },
   "name": "@trebired/env",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Env file reading and writing, process-env helpers, and configurable env-file kinds for Trebired apps and packages.",
   "type": "module",
   "private": false,
@@ -42,7 +42,7 @@
     "verify:pack": "bun ./scripts/verify-pack.mjs"
   },
   "dependencies": {
-    "@package/logger-adapter": "npm:@trebired/logger-adapter@^0.4.19",
+    "@package/logger-adapter": "npm:@trebired/logger-adapter@^0.6.0",
     "@trebired/utils": "^0.9.3"
   },
   "devDependencies": {
