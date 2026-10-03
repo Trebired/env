@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "category": "package",
+  "subcategory": "core",
+  "status": "active",
+  "npm": "@trebired/env",
+  "description": {
+    "en": "Reading and writing env files, with typed access to the process environment.",
+    "cs": "Čtení a zápis env souborů a typovaný přístup k proměnným prostředí."
+  }
+}
