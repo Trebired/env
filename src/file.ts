@@ -9,6 +9,7 @@ import {
   updateEnvTextValue,
 } from "./lines.js";
 import type { EnvMap, FormatEnvAssignmentOptions } from "./lines.js";
+import { assertEnvKeyUnclaimed, envKeyOwner, withoutClaimedKeys } from "./claims.js";
 
 type EnvFileKind = string;
 type ReadEnvFileOptions = {
@@ -37,7 +38,7 @@ function resolveEnvFileInput(input?: string | ReadEnvFileOptions): Required<Read
 }
 
 function withEnvMetadata(parsed: EnvMap, envFile: string, kind: string): FrozenEnvMap {
-  const out: EnvMap = { ...parsed };
+  const out: EnvMap = { ...withoutClaimedKeys(parsed) };
   if (typeof parsed.ENV_FILE === "string") out.ENV_FILE_VALUE = parsed.ENV_FILE;
   out.ENV_FILE = envFile;
   out.ENV_FILE_KIND = kind;
@@ -74,10 +75,19 @@ function writeEnvFileValue(
   if (!target) throw new Error("missing-env-file");
   if (!safeKey) throw new Error("missing-env-key");
   if (safeKey === "ENV_FILE") throw new Error("invalid-env-key");
+  assertEnvKeyUnclaimed(safeKey);
   const nextText = updateEnvTextValue(readEnvFileText(target, false), safeKey, value, options);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, nextText, "utf8");
   return withEnvMetadata(parseEnvText(nextText), target, "external");
+}
+
+function claimedFileValues(target: string): EnvMap {
+  const out: EnvMap = {};
+  for (const [key, value] of Object.entries(parseEnvText(readEnvFileText(target, false)))) {
+    if (envKeyOwner(key)) out[key] = value;
+  }
+  return out;
 }
 
 function writeEnvFileObject(
@@ -87,10 +97,11 @@ function writeEnvFileObject(
 ): FrozenEnvMap {
   const target = path.resolve(toTrimmedString(envFile));
   if (!target) throw new Error("missing-env-file");
-  const out: EnvMap = {};
+  const out: EnvMap = claimedFileValues(target);
   for (const [keyLike, valueLike] of Object.entries(toObject(entries))) {
     const key = toTrimmedString(keyLike);
     if (!key || key === "ENV_FILE" || key === "ENV_FILE_KIND" || key === "ENV_FILE_VALUE") continue;
+    assertEnvKeyUnclaimed(key);
     out[key] = String(valueLike ?? "");
   }
   const sort = options.sortKeys || sortEnvKeys;

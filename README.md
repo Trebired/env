@@ -39,6 +39,10 @@ writeConfiguredEnvFileValue("PORT", 3100);
 
 `readEnvFile` and the write functions return the parsed key/value map plus three reserved keys: `ENV_FILE` (the resolved absolute path), `ENV_FILE_KIND` (the `kind` passed in), and `ENV_FILE_VALUE` (the file's own `ENV_FILE=` line, if it declared one). These three keys are always stripped before writing entries back out.
 
+### Claimed keys
+
+A package that owns a secret claims it once: `claimConfiguredEnvKeys("@trebired/store", ["DATABASE_URL"])` reads the configured env file and the process env, removes the keys from `process.env`, and returns a reader that only the owner holds. From then on every other read of those keys throws `EnvKeyClaimedError`, which names the owner, and file and process snapshots leave them out. `@trebired/store` uses this so only the store can reach the database credentials.
+
 ## Configuration
 
 ### `.trebired/env/config.ts`

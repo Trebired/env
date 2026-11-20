@@ -3,8 +3,11 @@ import {
   readResolvedEnvPackageConfigSync,
   type EnvWriteConfig,
 } from "#11n74g0387ae";
+import { assertEnvKeyUnclaimed, claimEnvKeys, type ClaimedEnvReader } from "#omh1x4u0x994";
+import { parseEnvText } from "#y0hso6xi7mbh";
 import {
   readEnvFile,
+  readEnvFileText,
   writeEnvFileObject,
   writeEnvFileValue,
   type FrozenEnvMap,
@@ -42,6 +45,7 @@ function readConfiguredEnvFileString(
 ): string {
   const name = toTrimmedString(key);
   if (!name) return "";
+  assertEnvKeyUnclaimed(name);
   const source = readConfiguredEnvFile(input);
   return toTrimmedString(source[name]);
 }
@@ -128,7 +132,25 @@ function writeConfiguredEnvFileObject(
   return writeEnvFileObject(envFile, entries, configuredWriteOptions(options));
 }
 
+function configuredFileValues(input?: ConfiguredEnvFileKind | ConfiguredReadEnvFileOptions) {
+  try {
+    const target = resolveConfiguredEnvFilePath(normalizeConfiguredReadOptions(input));
+    return target ? parseEnvText(readEnvFileText(target, false)) : {};
+  } catch {
+    return {};
+  }
+}
+
+function claimConfiguredEnvKeys(
+  owner: unknown,
+  keys: readonly unknown[],
+  input?: ConfiguredEnvFileKind | ConfiguredReadEnvFileOptions,
+): ClaimedEnvReader {
+  return claimEnvKeys(owner, keys, { fileValues: configuredFileValues(input) });
+}
+
 export {
+  claimConfiguredEnvKeys,
   readConfiguredEnvFile,
   readConfiguredEnvFileString,
   writeConfiguredEnvFileObject,

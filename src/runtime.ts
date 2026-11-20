@@ -1,6 +1,7 @@
 export { bootstrapProcessEnv } from "./runtime/bootstrap.js";
 export { ENV_PACKAGE_SOURCE } from "./runtime/constants.js";
 export {
+  claimConfiguredEnvKeys,
   readConfiguredEnvFile,
   readConfiguredEnvFileString,
   writeConfiguredEnvFileObject,

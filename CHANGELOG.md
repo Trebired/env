@@ -4,6 +4,10 @@ All notable changes to `@trebired/env` will be documented here.
 
 This project follows semantic versioning once published.
 
+## 0.2.5
+
+- Added claimed keys. `claimEnvKeys(owner, keys, { fileValues })` and `claimConfiguredEnvKeys(owner, keys)` hand the values of `keys` to one owner and remove them from `process.env`. The owner reads them through the returned reader (`string`, `number`). Every other read or write of a claimed key, through `readProcessEnvValue`, `readProcessEnvNumber`, `readProcessEnvFlag`, `readConfiguredEnvFileString`, `writeProcessEnvValue` or `writeEnvFileValue`, throws `EnvKeyClaimedError`, and `readProcessEnv`, `readEnvFile` and `readConfiguredEnvFile` leave claimed keys out. A key already claimed by another owner cannot be claimed again. The same owner can claim it again and reads the same value, so a second runtime of the owner still sees a value the first claim took out of `process.env`. Claims are shared by every copy of the package in one process. `writeEnvFileObject` keeps the claimed lines of the file it rewrites, so code that cannot see a claimed key still rewrites the file without dropping it.
+
 ## 0.2.4
 
 - Raised the dependency ranges to the current releases: `@trebired/logger-adapter` to `^0.8.2`, `@trebired/utils` to `^0.9.7`.

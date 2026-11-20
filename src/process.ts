@@ -1,4 +1,5 @@
 import { toObject, toTrimmedString } from "@trebired/utils";
+import { assertEnvKeyUnclaimed, withoutClaimedKeys } from "./claims.js";
 
 type EnvMap = Record<string, string>;
 type ProcessEnvObjectOptions = {
@@ -11,7 +12,7 @@ type ProcessEnvObjectOptions = {
 
 function readProcessEnv(): Readonly<EnvMap> {
   const out: EnvMap = {};
-  for (const [key, value] of Object.entries(process.env || {})) {
+  for (const [key, value] of Object.entries(withoutClaimedKeys({ ...(process.env || {}) }))) {
     if (value != null) out[key] = String(value);
   }
   return Object.freeze(out);
@@ -19,6 +20,7 @@ function readProcessEnv(): Readonly<EnvMap> {
 
 function readProcessEnvValue(name: unknown): string {
   const key = toTrimmedString(name);
+  assertEnvKeyUnclaimed(key);
   const value = key ? process.env[key] : undefined;
   return value == null ? "" : String(value);
 }
@@ -26,6 +28,7 @@ function readProcessEnvValue(name: unknown): string {
 function writeProcessEnvValue(name: unknown, value: unknown): string {
   const key = toTrimmedString(name);
   if (!key) return "";
+  assertEnvKeyUnclaimed(key);
   process.env[key] = String(value ?? "");
   return readProcessEnvValue(key);
 }

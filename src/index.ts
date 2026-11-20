@@ -12,8 +12,11 @@ export {
   writeEnvFileObject,
   writeEnvFileValue,
 } from "./file.js";
+export { claimEnvKeys, EnvKeyClaimedError, envKeyOwner } from "./claims.js";
+export type { ClaimedEnvReader, ClaimEnvKeysOptions } from "./claims.js";
 export {
   ENV_PACKAGE_SOURCE,
+  claimConfiguredEnvKeys,
   bootstrapProcessEnv,
   isSelfReferentialExternalEnvFile,
   readConfiguredEnvFile,
